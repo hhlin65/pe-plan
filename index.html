@@ -141,7 +141,9 @@ async function act(a, p, okMsg) {
   if (S.busy) return null;
   S.busy = true;
   try {
-    var r = await call(a, p);
+    var r;
+    try { r = await call(a, p); }
+    catch (e1) { await new Promise(function (res) { setTimeout(res, 900); }); r = await call(a, p); } // 手機剛從背景回來時，第一個請求常因舊連線失效而失敗，自動重試一次
     if (!r.ok) {
       if (r.code === 'auth') { setTok(''); S.token = ''; S.home = null; S.loginStep = 'email'; renderLogin(); toast(r.err); return null; }
       toast(r.err); return null;
@@ -181,6 +183,14 @@ document.addEventListener('click', function (e) {
   if (!el) return;
   var fn = H[el.dataset.act];
   if (fn) fn(el.dataset, el);
+});
+
+/* ---------- 切回畫面時喚醒連線 ---------- */
+var lastPing = 0;
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState !== 'visible' || Date.now() - lastPing < 20000) return;
+  lastPing = Date.now();
+  try { call('ping').catch(function () {}); } catch (e) {}
 });
 
 /* ---------- 啟動 ---------- */
