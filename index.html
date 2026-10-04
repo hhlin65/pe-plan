@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>自主運動計畫</title>
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="運動計畫">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+
+<style>
+:root{--pri:#2563eb;--pri-d:#1d4ed8;--pri-l:#e8efff;--ok:#16a34a;--ok-l:#e7f6ec;--warn:#d97706;--warn-l:#fff4e0;--bad:#dc2626;--bad-l:#fdecec;--ink:#1c2433;--sub:#667085;--line:#e4e8f0;--bg:#f4f6fb;--card:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+#app{max-width:560px;margin:0 auto;padding:0 16px 96px}
+h1{font-size:22px;margin:0}h2{font-size:18px;margin:0 0 8px}h3{font-size:16px;margin:0 0 6px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 0 6px}
+.top .t{font-weight:700;font-size:17px}
+.iconbtn{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;color:var(--ink)}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.card.pri{background:var(--pri-l)}.card.ok{background:var(--ok-l)}.card.warn{background:var(--warn-l)}.card.bad{background:var(--bad-l)}
+.sub{color:var(--sub);font-size:14px}
+.btn{display:block;width:100%;min-height:50px;border:0;border-radius:14px;background:var(--pri);color:#fff;font-size:17px;font-weight:600;padding:12px;cursor:pointer}
+.btn:active{background:var(--pri-d)}
+.btn.sec{background:#fff;color:var(--pri);border:1.5px solid var(--pri)}
+.btn.gray{background:#eef1f6;color:var(--ink)}
+.btn.bad{background:var(--bad)}
+.btn.sm{min-height:40px;font-size:15px;padding:8px 12px;display:inline-block;width:auto}
+.btn[disabled]{opacity:.5}
+.row{display:flex;gap:10px}.row>*{flex:1}
+label.f{display:block;font-weight:600;margin:14px 0 6px}
+input[type=text],input[type=email],input[type=number],input[type=date],textarea,select{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+textarea{min-height:84px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--pri)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:9px 14px;font-size:15px;color:var(--ink);cursor:pointer}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.grid10{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.grid10 .chip{border-radius:12px;text-align:center;padding:10px 0;font-weight:600}
+.moods{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.moods .chip{border-radius:12px;text-align:center;padding:8px 0;font-size:22px}
+.nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:5}
+.nav button{flex:1;background:none;border:0;padding:6px 0;font-size:12px;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav button .ic{font-size:21px;line-height:1}
+.nav button.on{color:var(--pri);font-weight:700}
+.ringwrap{display:flex;align-items:center;gap:16px}
+.ring{position:relative;width:132px;height:132px;flex:none}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .n{font-size:30px;font-weight:800;line-height:1}
+.pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600}
+.pill.g{background:var(--ok-l);color:var(--ok)}.pill.y{background:var(--warn-l);color:var(--warn)}.pill.r{background:var(--bad-l);color:var(--bad)}.pill.b{background:var(--pri-l);color:var(--pri)}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px}
+.dot.green{background:var(--ok)}.dot.yellow{background:#f59e0b}.dot.red{background:var(--bad)}
+.bar{background:#eef1f6;border-radius:999px;height:12px;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:999px;background:var(--pri)}
+.bar.ok>i{background:var(--ok)}
+.wk{display:grid;grid-template-columns:96px 1fr 62px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+.wk:last-child{border:0}
+.steps{display:flex;gap:6px;margin:8px 0}
+.steps div{flex:1;height:6px;border-radius:99px;background:#dfe5f0}.steps div.on{background:var(--pri)}
+.yn{display:flex;gap:8px}.yn .chip{flex:1;text-align:center}
+.item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}
+.x{background:none;border:0;color:var(--bad);font-size:14px;padding:6px}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1c2433;color:#fff;padding:10px 18px;border-radius:999px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9;max-width:90%}
+#toast.show{opacity:.95}
+.center{text-align:center}
+.mt{margin-top:12px}
+.small{font-size:13px}
+a{color:var(--pri)}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:4px 10px;font-size:15px}
+.kv b{color:var(--sub);font-weight:600}
+.tag{font-size:12px;background:#eef1f6;border-radius:6px;padding:2px 6px;margin-right:4px}
+.loading{padding:60px 0;text-align:center;color:var(--sub)}
+.credit{margin:28px 0 8px;text-align:center;color:#98a2b3;font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">載入中…</div></div>
+<div id="toast"></div>
+<script>
+var PARAM_C = (new URLSearchParams(location.search).get('course') || '').replace(/[^A-Za-z0-9_\-]/g, '').slice(0, 30);
+var PARAM_T = '';
+var DAYS = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週日'];
+var SLOTS = { am: '早上', noon: '中午', eve: '下班後／晚上' };
+var TYPES = ['有氧', '肌力', '柔軟度與恢復', '上班族友善'];
+var TYPE_HINT = { '有氧': '快走、慢跑、單車、游泳、球類', '肌力': '徒手、彈力帶、健身房', '柔軟度與恢復': '伸展、瑜伽', '上班族友善': '肩頸、腰背、髖部伸展與核心' };
+var RPE_TXT = ['', '幾乎沒在動', '很輕鬆，可以輕鬆聊天', '輕鬆，說話沒問題', '微喘，還能說完整句子', '有點累，呼吸變快', '有點累，只能說短句', '吃力，只能說幾個字', '很吃力，快講不出話', '非常吃力，快撐不住', '極限，無法再繼續'];
+var MOODS = ['', '😩', '😕', '😐', '🙂', '😄'];
+var MOOD_TXT = ['', '很累', '有點累', '普通', '不錯', '很有精神'];
+var HEALTH_Q = [
+  '醫師是否曾說你的心臟有問題，只能在醫師建議下運動？',
+  '運動時，你是否曾感到胸痛？',
+  '最近一個月，你是否曾在沒運動時胸痛？',
+  '你是否曾因頭暈而失去平衡，或失去意識？',
+  '你是否有骨骼或關節問題，會因運動而惡化？',
+  '醫師是否正開立血壓或心臟相關藥物給你？',
+  '你是否知道其他任何不適合運動的原因？'
+];
+var GOAL_IDEAS = ['每週穩定運動 3 次，持續整個學期', '每週做 2 次肌力訓練，不中斷', '1600 公尺走跑進步 1 分鐘', '減少肩頸腰背痠痛', '養成下班後固定運動的習慣'];
+var OBST_IDEAS = ['工作太忙／加班', '天氣不好', '身體不舒服', '沒有動力', '場地或器材問題', '家庭或其他事情'];
+
+var S = { token: '', home: null, view: 'today', busy: false, email: '', loginStep: 'email', planStep: 0, plan: null, logs: null, prog: null, rf: null, T: { sub: 'list' } };
+
+/* ---------- 基本工具 ---------- */
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function nl(s) { return esc(s).replace(/\n/g, '<br>'); }
+function md(s) { var p = String(s).split('-'); return (+p[1]) + '/' + (+p[2]); }
+function toast(msg) { var t = $('toast'); t.textContent = msg; t.className = 'show'; clearTimeout(toast._t); toast._t = setTimeout(function () { t.className = ''; }, 2400); }
+var memTok = '';
+function getTok() { try { return localStorage.getItem('pe_token') || ''; } catch (e) { return memTok; } }
+function setTok(v) {
+  memTok = v;
+  try { if (v) localStorage.setItem('pe_token', v); else localStorage.removeItem('pe_token'); } catch (e) {}
+  syncUrl(v);
+}
+// iPhone 主畫面的網頁常常清掉儲存空間，所以把登入資訊也放進網址，加到主畫面時就會一起記住
+function syncUrl(v) {
+  try {
+    if (window.google && google.script && google.script.history) {
+      var p = {}; if (PARAM_C) p.course = PARAM_C; if (v) p.t = v;
+      google.script.history.replace(null, p);
+    }
+  } catch (e) {}
+}
+function localToday() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+
+var API_URL = 'https://script.google.com/macros/s/AKfycbxWXEsFlcfS4h6kjq5BUYsXlpyuafYJ51HHMPhwTWQ04l4nC2ilPkqtfor9-H6vKKg/exec';
+function call(a, p) {
+  return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ a: a, t: S.token, p: p || {} }) })
+    .then(function (r) { return r.json(); });
+}
+async function act(a, p, okMsg) {
+  if (S.busy) return null;
+  S.busy = true;
+  try {
+    var r = await call(a, p);
+    if (!r.ok) {
+      if (r.code === 'auth') { setTok(''); S.token = ''; S.home = null; S.loginStep = 'email'; renderLogin(); toast(r.err); return null; }
+      toast(r.err); return null;
+    }
+    if (okMsg) toast(okMsg);
+    return r;
+  } catch (e) { toast('連線失敗，請檢查網路後再試。'); return null; }
+  finally { S.busy = false; }
+}
+
+function setPath(path, val) {
+  var parts = path.split('.'), o = S;
+  for (var i = 0; i < parts.length - 1; i++) { if (o[parts[i]] == null) o[parts[i]] = {}; o = o[parts[i]]; }
+  o[parts[parts.length - 1]] = val;
+}
+function getPath(path) { var o = S; path.split('.').forEach(function (k) { o = o == null ? o : o[k]; }); return o; }
+
+/* ---------- 事件 ---------- */
+document.addEventListener('input', function (e) {
+  var el = e.target;
+  if (el.dataset && el.dataset.bind) setPath(el.dataset.bind, el.type === 'number' ? el.value : el.value);
+});
+document.addEventListener('change', function (e) {
+  var el = e.target;
+  if (el.dataset && el.dataset.bindc) { setPath(el.dataset.bindc, el.type === 'checkbox' ? el.checked : el.value); if (el.dataset.re) render(); }
+});
+document.addEventListener('change', function (e) {
+  var el = e.target;
+  if (el.dataset && el.dataset.chg && H[el.dataset.chg]) H[el.dataset.chg](el.dataset, el);
+});
+document.addEventListener('toggle', function (e) {
+  var el = e.target;
+  if (el && el.dataset && el.dataset.fit && S.fit && el.open) S.fit.open = el.dataset.fit;
+}, true);
+document.addEventListener('click', function (e) {
+  var el = e.target.closest('[data-act]');
+  if (!el) return;
+  var fn = H[el.dataset.act];
+  if (fn) fn(el.dataset, el);
+});
+
+/* ---------- 啟動 ---------- */
+async function boot() {
+  S.token = PARAM_T || getTok();
+  if (!S.token) { renderLogin(); return; }
+  var r = await act('home');
+  if (!r) { if (!S.token) return; $('app').innerHTML = '<div class="loading">連線失敗。<br><br><button class="btn sec" data-act="reload">重試</button></div>'; return; }
+  S.home = r;
+  setTok(S.token);
+  if (!r.me.name) { renderRegister(); return; }
+  S.view = 'today'; render();
+}
+
+/* ---------- 登入 / 註冊 ---------- */
+function renderLogin() {
+  var h = '<div style="padding-top:48px"><h1>自主運動計畫</h1><p class="sub">用手機規劃、記錄、檢視你自己的運動。第一次使用只要驗證一次 email，之後手機會記住你。</p>';
+  if (S.loginStep === 'email') {
+    h += '<div class="card"><label class="f" style="margin-top:0">你的 email</label><input type="email" id="em" autocomplete="email" inputmode="email" placeholder="name@gmail.com" value="' + esc(S.email) + '">' +
+      '<button class="btn mt" data-act="sendCode">寄驗證碼給我</button><p class="sub small mt">沒有密碼要記。我們會寄一封 6 位數驗證碼到這個 email。</p></div>';
+  } else {
+    h += '<div class="card"><p>驗證碼已寄到 <b>' + esc(S.email) + '</b></p><label class="f" style="margin-top:0">6 位數驗證碼</label>' +
+      '<input type="text" id="cd" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456">' +
+      '<button class="btn mt" data-act="verify">登入</button>' +
+      '<p class="sub small mt">沒收到？請看垃圾信件匣，約 1 分鐘內會到。</p>' +
+      '<button class="btn gray sm" data-act="backEmail">換一個 email</button></div>';
+  }
+  h += '<p class="sub small center">這個系統沒有使用 AI，資料只存在老師的雲端試算表。</p>' + CREDIT + '</div>';
+  $('app').innerHTML = h;
+}
+function renderRegister() {
+  var h = '<div style="padding-top:28px"><h1>歡迎！先簡單介紹自己</h1><div class="card">' +
+    '<label class="f" style="margin-top:0">姓名或暱稱</label><input type="text" id="rn" maxlength="30" value="' + esc(S.home.me.name) + '">' +
+    '<label class="f">課程代碼（沒有請留空）</label><input type="text" id="rc" maxlength="30" autocapitalize="characters" placeholder="老師給你的代碼" value="' + esc(S.home.me.courseCode || PARAM_C || '') + '">' +
+    '<label class="f">學號（有課程代碼才需要）</label><input type="text" id="rs" maxlength="20" value="' + esc(S.home.me.studentNo || '') + '">' +
+    '<button class="btn mt" data-act="saveProfile">開始使用</button>' +
+    '<p class="sub small mt"><b>有課程代碼</b>：老師看得到你的計畫與紀錄。<br><b>沒有課程代碼</b>：自用模式，只有你自己看得到，沒有評分。</p></div>' + CREDIT + '</div>';
+  $('app').innerHTML = h;
+}
+
+/* ---------- 版型 ---------- */
+var CREDIT = '<div class="credit">系統建置與維護<br>真理大學運動資訊傳播學系　林信宏</div>';
+function shell(inner) {
+  var home = S.home, nav = [['today', '🏠', '今天'], ['log', '➕', '記錄'], ['plan', '📋', '計畫'], ['reflect', '📝', '反思'], ['prog', '📈', '進度']];
+  if (home.me.teacher) nav.push(['teacher', '👩‍🏫', '老師']);
+  var h = '<div class="top"><div class="t">自主運動計畫</div><div><button class="iconbtn" data-act="guide">說明</button> <button class="iconbtn" data-act="me">' + esc(home.me.name) + ' ▾</button></div></div>' + inner;
+  h += CREDIT + '<div class="nav">' + nav.map(function (n) {
+    return '<button class="' + (S.view === n[0] ? 'on' : '') + '" data-act="go" data-v="' + n[0] + '"><span class="ic">' + n[1] + '</span>' + n[2] + '</button>';
+  }).join('') + '</div>';
+  var same = (S._lv === S.view), y = window.scrollY;
+  $('app').innerHTML = h;
+  window.scrollTo(0, same ? y : 0);
+  S._lv = S.view;
+}
+function render() {
+  var v = S.view;
+  if (v === 'today') return viewToday();
+  if (v === 'log') return viewLog();
+  if (v === 'plan') return viewPlan();
+  if (v === 'reflect') return viewReflect();
+  if (v === 'prog') return viewProg();
+  if (v === 'teacher') return viewTeacher();
+  if (v === 'me') return viewMe();
+  if (v === 'guide') return viewGuide();
+  if (v === 'fit') return viewFit();
+}
+
+/* ---------- 今天 ---------- */
+function weekLabel(hm) {
+  var st = hm.state;
+  if (st.phase === 'setup') return '預備週';
+  if (st.phase === 'late') return '期末考週';
+  if (st.phase === 'ended') return '已結束';
+  return '第 ' + (st.mode === 'solo' ? st.wk - st.first + 1 : st.wk) + ' 週';
+}
+function viewToday() {
+  var hm = S.home, st = hm.state, tg = hm.targets, tw = hm.thisWeek, pl = hm.plan;
+  var h = '<div class="card"><div class="sub">' + esc(hm.course ? hm.course.name : '自用模式') + '</div><h2 style="margin-top:2px">嗨，' + esc(hm.me.name) + ' <span class="pill b">' + weekLabel(hm) + '</span></h2>';
+  if (st.phase === 'setup') h += '<p class="sub" style="margin:4px 0 0">本週是預備週：先完成計畫書，從第 ' + st.first + ' 週（' + md(st.startDate) + '）起正式計算。想先運動也可以記錄。</p>';
+  else if (st.phase === 'late') h += '<p class="sub" style="margin:4px 0 0">本週是期末考週，不安排新任務，可補交缺漏的記錄與報告。</p>';
+  else if (st.phase === 'ended') h += '<p class="sub" style="margin:4px 0 0">這門課程的運動期已結束，謝謝你的努力！</p>';
+  h += '</div>';
+
+  var ps = pl.status;
+  if (hm.logCount === 0 && (ps === 'none' || ps === 'draft')) h += '<div class="card pri"><b>第一次使用？</b><div class="sub" style="margin:2px 0 10px">先花 2 分鐘看看怎麼運作。</div><button class="btn sm" data-act="guide">看使用說明</button></div>';
+  if (ps === 'none' || ps === 'draft') h += '<div class="card warn"><h3>先完成你的運動計畫</h3><p class="sub" style="margin:0 0 10px">約 10 分鐘，之後每週都靠它安排。</p><button class="btn" data-act="go" data-v="plan">開始寫計畫</button></div>';
+  else if (ps === 'submitted') h += '<div class="card pri"><b>計畫書已送出</b><div class="sub">等老師確認，期間可以先照計畫運動。確認後會寄 email 通知你（沒收到請看垃圾信件匣）。</div></div>';
+  else if (ps === 'revise') h += '<div class="card bad"><b>老師請你修改計畫書</b><div style="margin:6px 0">' + nl(pl.teacherNote) + '</div><button class="btn sm" data-act="go" data-v="plan">去修改</button></div>';
+
+  var pct = Math.min(1, tw.min / tg.target), C = 2 * Math.PI * 52, off = C * (1 - pct);
+  var met = tw.min >= tg.min;
+  h += '<div class="card"><div class="ringwrap"><div class="ring"><svg viewBox="0 0 120 120" width="132" height="132"><circle cx="60" cy="60" r="52" fill="none" stroke="#eef1f6" stroke-width="12"/>' +
+    '<circle cx="60" cy="60" r="52" fill="none" stroke="' + (met ? '#16a34a' : '#2563eb') + '" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 60 60)"/></svg>' +
+    '<div class="c"><div class="n">' + tw.min + '</div><div class="sub small">/ ' + tg.target + ' 分</div></div></div>' +
+    '<div style="flex:1"><h3>本週運動量</h3>' +
+    '<div>肌力 <b>' + tw.strength + '</b> / ' + tg.strength + ' 次</div><div>運動 <b>' + tw.sessions + '</b> 次</div>' +
+    '<div class="mt">' + (st.phase === 'setup' ? '<span class="pill b">預備週，不計入達標</span>' : (met ? '<span class="pill g">已達標線 ' + tg.min + ' 分 ✔</span>' : '<span class="pill y">距離達標線還差 ' + (tg.min - tw.min) + ' 分</span>')) + '</div></div></div></div>';
+
+  if (hm.feedback) h += '<div class="card ok"><div class="sub">老師的話（' + md(hm.feedback.at) + '）</div><div>' + nl(hm.feedback.text) + '</div></div>';
+
+  var wdn = DAYS[st.weekday];
+  if (hm.todayItems.length) {
+    h += '<div class="card"><h3>今天（' + wdn + '）計畫</h3>' + hm.todayItems.map(function (it) { return '<div class="item"><span>' + SLOTS[it.slot] + '・' + esc(it.type) + '</span><b>' + it.minutes + ' 分</b></div>'; }).join('') + '</div>';
+  } else if (ps !== 'none' && ps !== 'draft') {
+    h += '<div class="card"><h3>今天（' + wdn + '）</h3><p class="sub" style="margin:0">計畫裡今天沒排運動，休息也是計畫的一部分。</p></div>';
+  }
+
+  if (hm.fit && hm.fit.pre === 0 && (st.phase === 'setup' || st.phase === 'active')) h += '<div class="card"><b>體適能前測</b><div class="sub" style="margin:2px 0 10px">測一次基準，之後才看得到自己的進步。</div><button class="btn sec sm" data-act="goFit">去測</button></div>';
+  if ((st.phase === 'active' || st.phase === 'late') && !hm.reflectDone && (st.weekday >= 5 || st.stage)) {
+    h += '<div class="card pri"><b>' + (st.stage ? '本週是「' + esc(st.stage) + '」' : '本週的反思還沒寫') + '</b><div class="sub" style="margin:2px 0 10px">約 3–5 分鐘。</div><button class="btn sm" data-act="go" data-v="reflect">去寫反思</button></div>';
+  }
+  h += '<button class="btn" data-act="go" data-v="log" style="margin-top:6px">＋ 記錄這次運動</button>';
+  if (hm.rate.done > 0 && st.mode === 'course') h += '<div class="card" style="margin-top:12px"><div class="sub">目前達標週數</div><b style="font-size:20px">' + hm.rate.met + ' / ' + hm.rate.done + ' 週</b> <span class="sub">（目標 ' + Math.round(tg.passRate * 100) + '% 以上）</span></div>';
+  shell(h);
+}
+
+/* ---------- 記錄 ---------- */
+function newLogForm() { return { date: localToday(), types: [], activity: '', minutes: '', rpe: 0, mood: 3, note: '' }; }
+async function viewLog() {
+  if (!S.logForm) S.logForm = newLogForm();
+  var f = S.logForm;
+  var h = '<h2>記錄運動</h2><div class="card">' +
+    '<label class="f" style="margin-top:0">日期</label><input type="date" data-bindc="logForm.date" value="' + esc(f.date) + '" max="' + localToday() + '">' +
+    '<label class="f">運動類型（可複選）</label><div class="chips">' + TYPES.map(function (t) {
+      return '<button class="chip' + (f.types.indexOf(t) > -1 ? ' on' : '') + '" data-act="toggleType" data-t="' + esc(t) + '">' + esc(t) + '</button>';
+    }).join('') + '</div>' +
+    '<div class="sub small mt">' + f.types.map(function (t) { return esc(t) + '：' + esc(TYPE_HINT[t]); }).join('<br>') + '</div>' +
+    '<label class="f">做了什麼、在哪裡</label><input type="text" maxlength="60" data-bind="logForm.activity" placeholder="例如：公園慢跑" value="' + esc(f.activity) + '">' +
+    '<label class="f">運動多久（分鐘，含熱身與伸展）</label><div class="chips" style="margin-bottom:8px">' + [20, 30, 45, 60, 90].map(function (m) {
+      return '<button class="chip' + (String(f.minutes) === String(m) ? ' on' : '') + '" data-act="setMin" data-m="' + m + '">' + m + '</button>';
+    }).join('') + '</div><input type="number" inputmode="numeric" min="1" max="300" placeholder="其他請直接輸入" data-bind="logForm.minutes" value="' + esc(f.minutes) + '">' +
+    '<label class="f">運動強度：這次覺得有多累？</label><div class="grid10">' + [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) {
+      return '<button class="chip' + (f.rpe === n ? ' on' : '') + '" data-act="setRpe" data-n="' + n + '">' + n + '</button>';
+    }).join('') + '</div><div class="sub mt" style="min-height:24px">' + (f.rpe ? '<b>' + f.rpe + '</b>：' + RPE_TXT[f.rpe] : '1 = 很輕鬆　10 = 快到極限，憑感覺選就好') + '</div>' +
+    '<label class="f">今天的狀態</label><div class="moods">' + [1, 2, 3, 4, 5].map(function (n) {
+      return '<button class="chip' + (f.mood === n ? ' on' : '') + '" data-act="setMood" data-n="' + n + '" title="' + MOOD_TXT[n] + '">' + MOODS[n] + '</button>';
+    }).join('') + '</div><div class="sub center small mt">' + MOOD_TXT[f.mood] + '</div>' +
+    '<label class="f">備註（可空白）</label><input type="text" maxlength="200" data-bind="logForm.note" value="' + esc(f.note) + '">' +
+    '<button class="btn mt" data-act="saveLog">送出記錄</button></div>' +
+    '<h3 style="margin-top:20px">最近的記錄</h3><div class="card" id="recent"><div class="sub">載入中…</div></div>';
+  shell(h);
+  var logs = S.recent;
+  if (!logs) { var r = await act('logs'); if (r) { S.recent = r.logs; logs = r.logs; } }
+  if (logs && $('recent')) {
+    $('recent').innerHTML = logs.length ? logs.map(function (l) {
+      return '<div class="item"><div><b>' + md(l.date) + '</b> ' + esc(l.types.join('、')) + '<div class="sub small">' + esc(l.activity || '') + '　' + l.minutes + ' 分　強度 ' + l.rpe + '</div></div><button class="x" data-act="delLog" data-id="' + esc(l.id) + '">刪除</button></div>';
+    }).join('') : '<div class="sub">還沒有記錄，今天就開始第一筆吧。</div>';
+  }
+}
+
+/* ---------- 計畫書 ---------- */
+var PLAN_STEPS = ['健康', '基準', '目標', '排程', '送出'];
+async function viewPlan() {
+  if (!S.plan) {
+    shell('<div class="loading">載入中…</div>');
+    var r = await act('planGet');
+    if (!r) return;
+    S.plan = r.plan;
+    if (!S.plan.health.answers || S.plan.health.answers.length < 7) S.plan.health.answers = [null, null, null, null, null, null, null];
+    S.newItem = { day: 2, slot: 'eve', type: '有氧', minutes: 30 };
+  }
+  var p = S.plan, st = S.planStep, h = '<h2>我的運動計畫</h2><div class="steps">' + PLAN_STEPS.map(function (s, i) { return '<div class="' + (i <= st ? 'on' : '') + '"></div>'; }).join('') + '</div>' +
+    '<div class="sub">第 ' + (st + 1) + ' / 5 步：' + PLAN_STEPS[st] + '</div>';
+  if (p.status === 'submitted') h += '<div class="card pri"><b>已送出，等老師確認</b><div class="sub">需要修改時可以改完再送出一次。</div></div>';
+  if (p.status === 'approved' && S.home.state.mode === 'course') h += '<div class="card ok"><b>計畫書已核准 ✔</b>' + (p.teacherNote ? '<div class="sub">' + nl(p.teacherNote) + '</div>' : '') + '</div>';
+  if (p.status === 'revise') h += '<div class="card bad"><b>老師請你修改</b><div>' + nl(p.teacherNote) + '</div></div>';
+
+  if (st === 0) {
+    h += '<div class="card"><h3>健康問卷</h3><p class="sub" style="margin-top:0">請誠實回答。有任何「是」，老師會跟你討論適合的強度。</p>' +
+      HEALTH_Q.map(function (q, i) {
+        var a = p.health.answers[i];
+        return '<div style="margin:14px 0"><div>' + (i + 1) + '. ' + esc(q) + '</div><div class="yn mt"><button class="chip' + (a === 0 ? ' on' : '') + '" data-act="hq" data-i="' + i + '" data-v="0">否</button><button class="chip' + (a === 1 ? ' on' : '') + '" data-act="hq" data-i="' + i + '" data-v="1">是</button></div></div>';
+      }).join('') +
+      '<label class="f">傷病、慢性病或醫師的運動建議（沒有就填「無」）</label><textarea data-bind="plan.health.conditions" maxlength="300">' + esc(p.health.conditions) + '</textarea></div>';
+  } else if (st === 1) {
+    h += '<div class="card"><h3>基準體能</h3><p class="sub" style="margin-top:0">自己測、記下數字就好，不知道怎麼測可以先空白，之後再補。學期後段會再測一次來對照。</p><button class="btn sec sm" data-act="goFit" style="margin-bottom:8px">用「體適能自測」頁一步步測（有動作說明）</button>' +
+      fld('身高與體重', 'plan.baseline.body', '例如：170 cm、68 kg') +
+      fld('心肺', 'plan.baseline.cardio', '例如：1600 公尺走跑 12 分 30 秒') +
+      fld('肌力', 'plan.baseline.strength', '例如：伏地挺身 15 下、仰臥起坐 1 分鐘 25 下') +
+      fld('柔軟度', 'plan.baseline.flex', '例如：坐姿體前彎 10 公分') + '</div>';
+  } else if (st === 2) {
+    h += '<div class="card"><h3>我的目標</h3><p class="sub" style="margin-top:0">寫具體、可以檢查的目標。點下面的想法可以直接加進去再修改。</p>' +
+      '<div class="chips" style="margin-bottom:10px">' + GOAL_IDEAS.map(function (g, i) { return '<button class="chip" data-act="goalIdea" data-i="' + i + '">' + esc(g) + '</button>'; }).join('') + '</div>' +
+      '<textarea data-bind="plan.goal" maxlength="400" placeholder="我的目標…">' + esc(p.goal) + '</textarea>' +
+      fld('運動場地', 'plan.venue', '例如：住家附近公園、公司旁健身房') +
+      fld('備案：下雨或場地不能用時怎麼辦？', 'plan.backup', '例如：改在家做徒手訓練') +
+      '<label class="f">我預期可能遇到的阻礙，以及打算怎麼處理</label><textarea data-bind="plan.obstacles" maxlength="300">' + esc(p.obstacles) + '</textarea></div>';
+  } else if (st === 3) {
+    var total = (p.schedule || []).reduce(function (a, b) { return a + Number(b.minutes); }, 0);
+    var tg = S.home.targets, ni = S.newItem;
+    h += '<div class="card"><h3>每週運動安排</h3><p class="sub" style="margin-top:0">排出大致的時段，首頁會顯示「今天該做什麼」。每週目標約 ' + tg.target + ' 分鐘，其中肌力 ' + tg.strength + ' 次。</p>' +
+      ((p.schedule || []).length ? p.schedule.map(function (it, i) {
+        return '<div class="item"><span>' + DAYS[it.day] + '・' + SLOTS[it.slot] + '・' + esc(it.type) + '・<b>' + it.minutes + ' 分</b></span><button class="x" data-act="delItem" data-i="' + i + '">移除</button></div>';
+      }).join('') : '<div class="sub">還沒有安排。</div>') +
+      '<div class="mt">每週合計 <b>' + total + '</b> 分 ' + (total >= tg.target ? '<span class="pill g">達目標</span>' : '<span class="pill y">差 ' + (tg.target - total) + ' 分</span>') + '</div></div>' +
+      '<div class="card"><h3>新增一個時段</h3><div class="row"><div><label class="f" style="margin-top:0">星期</label><select data-bindc="newItem.day">' + DAYS.slice(1).map(function (d, i) { return '<option value="' + (i + 1) + '"' + (ni.day == i + 1 ? ' selected' : '') + '>' + d + '</option>'; }).join('') + '</select></div>' +
+      '<div><label class="f" style="margin-top:0">時段</label><select data-bindc="newItem.slot">' + Object.keys(SLOTS).map(function (k) { return '<option value="' + k + '"' + (ni.slot === k ? ' selected' : '') + '>' + SLOTS[k] + '</option>'; }).join('') + '</select></div></div>' +
+      '<div class="row"><div><label class="f">類型</label><select data-bindc="newItem.type">' + TYPES.map(function (t) { return '<option' + (ni.type === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div>' +
+      '<div><label class="f">分鐘</label><input type="number" inputmode="numeric" min="5" max="300" data-bind="newItem.minutes" value="' + esc(ni.minutes) + '"></div></div>' +
+      '<button class="btn sec mt" data-act="addItem">＋ 加入這個時段</button></div>';
+  } else {
+    var ok = p.health.answers.every(function (x) { return x !== null; }) && p.goal.length >= 4 && (p.schedule || []).length > 0;
+    h += '<div class="card"><h3>確認並送出</h3>' +
+      '<div class="kv"><b>健康問卷</b><span>' + (p.health.answers.every(function (x) { return x !== null; }) ? '已完成' : '<span class="pill r">未完成</span>') + '</span>' +
+      '<b>目標</b><span>' + (p.goal ? esc(p.goal) : '<span class="pill r">未填</span>') + '</span>' +
+      '<b>每週安排</b><span>' + ((p.schedule || []).length ? p.schedule.length + ' 個時段' : '<span class="pill r">未排</span>') + '</span></div>' +
+      '<label class="f" style="display:flex;gap:10px;align-items:flex-start;font-weight:400"><input type="checkbox" style="width:22px;height:22px;margin-top:2px" data-bindc="plan.agree"' + (p.agree ? ' checked' : '') + '>我了解運動中不舒服要立刻停止' + (S.home.state.mode === 'course' ? '，並告知老師' : '') + '。</label>' +
+      '<button class="btn mt" data-act="planSubmit">' + (S.home.state.mode === 'course' ? '送出給老師' : '完成並儲存') + '</button>' +
+      '<button class="btn gray mt" data-act="planDraft">只儲存草稿</button>' +
+      (ok ? '' : '<p class="sub small mt">還有項目沒完成，送出前請回前面步驟補齊。</p>') + '</div>';
+  }
+  h += '<div class="row mt">' + (st > 0 ? '<button class="btn gray" data-act="planStep" data-d="-1">上一步</button>' : '<span></span>') + (st < 4 ? '<button class="btn" data-act="planStep" data-d="1">下一步</button>' : '<span></span>') + '</div>';
+  shell(h);
+}
+function fld(label, path, ph) {
+  return '<label class="f">' + esc(label) + '</label><input type="text" maxlength="120" data-bind="' + path + '" placeholder="' + esc(ph) + '" value="' + esc(getPath(path) || '') + '">';
+}
+
+/* ---------- 反思 ---------- */
+async function viewReflect() {
+  shell('<div class="loading">載入中…</div>');
+  var pr = await act('progress');
+  if (!pr) return;
+  S.prog = pr;
+  var st = S.home.state;
+  var weeks = pr.weeks.filter(function (w) { return w.week <= st.wk; });
+  if (!weeks.length) { shell('<h2>每週反思</h2><div class="card"><p class="sub" style="margin:0">還沒到可以回報的週次。正式開始後，每週末回來寫 3 分鐘反思。</p></div>'); return; }
+  if (!S.rf || !S.rf.week || !weeks.some(function (w) { return w.week === S.rf.week; })) {
+    var pick = weeks.filter(function (w) { return !w.reflected; }).pop() || weeks[weeks.length - 1];
+    await loadReflect(pick.week);
+  }
+  drawReflect(weeks);
+}
+async function loadReflect(week) {
+  var r = await act('reflectGet', { week: week });
+  var x = r && r.reflect;
+  S.rf = { week: week, did: x ? x.did : '', obstacle: x ? x.obstacle : '', adjust: x ? x.adjust : '', goalScore: x ? x.goalScore : 0, extra: x ? x.extra : '' };
+}
+function drawReflect(weeks) {
+  var rf = S.rf, st = S.home.state, stageName = S.home.state.mode === 'course' ? S.prog.stages[rf.week] : '';
+  var h = '<h2>週反思</h2><div class="card"><label class="f" style="margin-top:0">回報哪一週</label><select data-chg="rfWeek" id="rfw">' +
+    weeks.map(function (w) { return '<option value="' + w.week + '"' + (w.week === rf.week ? ' selected' : '') + '>' + esc(w.label) + '（' + md(w.start) + '起）' + (w.reflected ? ' ✔' : '') + '</option>'; }).join('') + '</select>';
+  if (stageName) h += '<div class="card pri" style="margin:12px 0 0"><b>這週是「' + esc(stageName) + '」</b><div class="sub">請把最後的階段回報也填一下。</div></div>';
+  h += '<label class="f">這週做到什麼？</label><textarea data-bind="rf.did" maxlength="600">' + esc(rf.did) + '</textarea>' +
+    '<label class="f">遇到什麼阻礙？</label><div class="chips" style="margin-bottom:8px">' + OBST_IDEAS.map(function (o, i) { return '<button class="chip" data-act="obstIdea" data-i="' + i + '">' + esc(o) + '</button>'; }).join('') + '</div>' +
+    '<textarea data-bind="rf.obstacle" maxlength="600">' + esc(rf.obstacle) + '</textarea>' +
+    '<label class="f">下週要調整什麼？</label><textarea data-bind="rf.adjust" maxlength="600">' + esc(rf.adjust) + '</textarea>';
+  if (stageName) {
+    h += '<label class="f">目前目標達成度</label><div class="grid10" style="grid-template-columns:repeat(5,1fr)">' + [1, 2, 3, 4, 5].map(function (n) { return '<button class="chip' + (rf.goalScore === n ? ' on' : '') + '" data-act="rfScore" data-n="' + n + '">' + n + '</button>'; }).join('') + '</div>' +
+      '<div class="sub small mt">1 = 幾乎沒進展　5 = 已達成</div>' +
+      '<label class="f">補充：計畫要不要調整？' + (rf.week >= 15 ? '期末請寫前後體能比較與下一步（可附複測數字）' : '') + '</label><textarea data-bind="rf.extra" maxlength="1500" style="min-height:120px">' + esc(rf.extra) + '</textarea>';
+  }
+  h += '<button class="btn mt" data-act="saveReflect">送出</button></div>';
+  shell(h);
+}
+
+/* ---------- 進度 ---------- */
+async function viewProg() {
+  shell('<div class="loading">載入中…</div>');
+  var r = await act('progress');
+  if (!r) return;
+  S.prog = r;
+  var tg = r.targets, rt = r.rate;
+  var h = '<h2>我的進度</h2>';
+  if (r.mode === 'course') {
+    var pct = rt.rate == null ? 0 : Math.round(rt.rate * 100);
+    h += '<div class="card"><div class="sub">達標率（達標週數 ÷ 已過週數）</div><div style="font-size:28px;font-weight:800">' + (rt.done ? pct + '%' : '—') + ' <span class="sub" style="font-size:15px;font-weight:400">' + rt.met + ' / ' + rt.done + ' 週</span></div>' +
+      '<div class="bar' + (rt.rate != null && rt.rate >= tg.passRate ? ' ok' : '') + ' mt"><i style="width:' + pct + '%"></i></div><div class="sub small mt">目標 ' + Math.round(tg.passRate * 100) + '% 以上　・　累積 ' + r.totalMin + ' 分鐘</div></div>';
+  } else {
+    h += '<div class="card"><div class="sub">累積運動</div><div style="font-size:28px;font-weight:800">' + r.totalMin + ' <span class="sub" style="font-size:15px;font-weight:400">分鐘</span></div><div class="sub small">達標 ' + rt.met + ' / ' + rt.done + ' 週（自用模式，僅供自己參考）</div></div>';
+  }
+  h += '<div class="card"><h3>每週一覽</h3><div class="sub small" style="margin-bottom:6px">長條 = 該週分鐘數，滿格 = ' + tg.target + ' 分；綠色 = 達標（≥ ' + tg.min + ' 分）</div>' +
+    r.weeks.map(function (w) {
+      var pc = Math.min(100, Math.round(w.min / tg.target * 100));
+      var mark = w.future ? '<span class="sub">—</span>' : (w.counted ? (w.met ? '<span class="pill g">✔</span>' : '<span class="pill ' + (w.current ? 'y' : 'r') + '">' + (w.current ? '進行中' : '✘') + '</span>') : '<span class="pill b">補交</span>');
+      return '<div class="wk"><div>' + esc(r.mode === 'solo' ? '第 ' + (w.week - S.home.state.first + 1) + ' 週' : w.label.replace('（期末考週）', '')) + '<div class="sub small">' + md(w.start) + (w.reflected ? '・已反思' : '') + '</div></div>' +
+        '<div><div class="bar' + (w.met ? ' ok' : '') + '"><i style="width:' + pc + '%"></i></div><div class="sub small">' + w.min + ' 分・肌力 ' + w.strength + ' 次</div></div><div class="center">' + mark + '</div></div>';
+    }).join('') + '</div>';
+  h += '<div class="card"><h3>體適能自測</h3><p class="sub" style="margin:0 0 10px">用 5 個項目測自己的體能，前測與後測可以對照進步。</p><button class="btn sec sm" data-act="goFit">前往自測</button></div>';
+  var b = r.baseline || {};
+  if (b.body || b.cardio || b.strength || b.flex) {
+    h += '<div class="card"><h3>基準體能</h3><div class="kv"><b>身高體重</b><span>' + esc(b.body || '—') + '</span><b>心肺</b><span>' + esc(b.cardio || '—') + '</span><b>肌力</b><span>' + esc(b.strength || '—') + '</span><b>柔軟度</b><span>' + esc(b.flex || '—') + '</span></div></div>';
+  }
+  shell(h);
+}
+
+/* ---------- 使用說明 ---------- */
+function viewGuide() {
+  var hm = S.home, tg = hm.targets, st = hm.state, c = hm.course, isCourse = st.mode === 'course';
+  function sec(title, body, open) { return '<details class="card"' + (open ? ' open' : '') + '><summary style="font-weight:700;font-size:16px;cursor:pointer">' + title + '</summary><div style="margin-top:10px">' + body + '</div></details>'; }
+  function ul(a) { return '<ul style="margin:0;padding-left:20px">' + a.map(function (x) { return '<li style="margin:4px 0">' + x + '</li>'; }).join('') + '</ul>'; }
+  var h = '<h2>使用說明</h2>';
+  h += sec('這是什麼', isCourse
+    ? '<p style="margin:0">這學期你用「自主規劃的運動計畫」取代到課：自己規劃、自己執行、自己檢核，老師全程給回饋。全部在手機網頁完成，不需要安裝 App。</p>'
+    : '<p style="margin:0">這是你自己的運動計畫工具：規劃、記錄、檢視進度。資料只有你自己看得到，沒有人評分。</p>', true);
+  h += sec('每週要做什麼', ul([
+    '<b>計畫</b>（一次）：健康問卷、基準體能、目標、每週運動安排，約 10 分鐘。' + (isCourse ? '送出後老師會確認。' : ''),
+    '<b>記錄</b>（每次運動後）：選類型、分鐘、強度，約 30 秒。',
+    '<b>反思</b>（每週末）：這週做到什麼、遇到什麼阻礙、下週調整什麼，約 3 分鐘。',
+    '<b>進度</b>：隨時看每週是否達標、累積多少分鐘。'
+  ]), true);
+  h += sec('每週運動量', ul([
+    '目標約 <b>' + tg.target + ' 分鐘</b>（含熱身與伸展），其中肌力 <b>' + tg.strength + ' 次</b>。',
+    '達標線是 <b>' + tg.min + ' 分鐘</b>。忙的週降到這條線也算達標，下週再補回即可。',
+    '類型：有氧、肌力、柔軟度與恢復、上班族友善（肩頸腰背）。一次運動可複選。',
+    '項目、場地、時段都由你自己決定。',
+    '前期先求「做得到、不受傷」，再慢慢加量，每週加量別超過前一週的 10%。'
+  ]), false);
+  if (isCourse) {
+    h += sec('時程與階段回報', ul([
+      '加入當週是預備週，先完成計畫書。正式計算從第 <b>' + st.first + '</b> 週（' + md(st.startDate) + '）開始。',
+      '第 4、7、10、15 週是階段回報週（第 4 週回報、期中報告、第 10 週回報、期末報告），到「反思」頁多填兩題。',
+      '第 16 週是期末考週，不安排新任務，只供補交缺漏的記錄與報告。'
+    ]), false);
+    h += sec('評分與達標', '<p style="margin:0 0 8px">達標率 = 達標週數 ÷ 已過週數，達標率 <b>' + Math.round(tg.passRate * 100) + '%</b> 以上為滿分門檻。</p>' + (c && c.guide ? '<div>' + nl(c.guide) + '</div>' : ''), false);
+  }
+  h += sec('體適能自測', ul([
+    '從「進度」頁或首頁的卡片進入，用 5 個項目認識自己的體能：<b>身高體重（BMI）、坐姿體前彎、立定跳遠、一分鐘仰臥起坐、跑走</b>（女 800 公尺、男 1600 公尺）。',
+    '開始時測一次（前測），<b>第 13–14 週</b>再測一次（後測），頁面會把前後成績並排給你看進步多少。',
+    '每個項目都有動作說明和熱身建議。測完會看到 PR（和同齡的比較）、評語，以及怎麼進步的小建議。',
+    '常模只涵蓋 19–23 歲，超出的年齡 PR 只能參考，<b>重點是和自己的前測比</b>。',
+    '沒有專用測量器也沒關係：坐姿體前彎可以用捲尺，勾選「自製方法」，數字只用來和自己比。',
+    isCourse ? '成績好壞不影響每週達標與評分，<b>有完成前測與後測可以加分</b>。' : '成績好壞只是讓你認識自己，沒有人評分。',
+    '測驗中不舒服請立刻停止；健康問卷有答「是」的人，做跑走前先和老師討論。'
+  ]), false);
+  h += sec('運動強度怎麼選', '<p style="margin:0 0 6px" class="sub">憑感覺選就好，沒有標準答案。</p>' + ul(RPE_TXT.slice(1).map(function (t, i) { return '<b>' + (i + 1) + '</b>：' + esc(t); })), false);
+  h += sec('受傷或不舒服時', ul([
+    '運動中胸悶、頭暈、關節疼痛，請<b>立刻停止</b>，必要時就醫' + (isCourse ? '，並告知老師' : '') + '。',
+    isCourse ? '生病、受傷或工作突發狀況，可以降量、換項目或順延，說一聲就好，<b>不扣分</b>。' : '身體不舒服就休息，計畫隨時可以調整。',
+    isCourse ? '連續兩週以上無法運動，請主動和老師重新討論計畫。' : ''
+  ].filter(Boolean)), false);
+  h += sec('問題與聯絡', '<p style="margin:0">' + (isCourse && c && c.teacherEmail ? '有問題隨時 email 老師：<b>' + esc(c.teacherEmail) + '</b>，不需要約時間。' : '遇到問題可以先看這份說明。') + '</p><p class="sub small" style="margin:8px 0 0">換手機或登出後，用同一個 email 再收一次驗證碼就能回來。這個系統沒有使用 AI。</p>', false);
+  h += '<button class="btn mt" data-act="go" data-v="today">我知道了，回首頁</button>';
+  shell(h);
+}
+
+/* ---------- 體適能自測 ---------- */
+var FIT_ITEMS = ['body', 'sit_reach', 'standing_jump', 'sit_up', 'cardio'];
+var GRADE_TXT = { weak: '待加強', below: '中等偏下', above: '中等偏上', good: '良好' };
+var LEVEL_TXT = { underweight: '體重偏輕', normal: '正常', overweight: '偏重', obese: '肥胖' };
+function fitLabel(it) {
+  var g = S.fit && S.fit.gender;
+  return { body: '身高與體重（BMI）', sit_reach: '坐姿體前彎（柔軟度）', standing_jump: '立定跳遠（瞬發力）', sit_up: '一分鐘仰臥起坐（肌耐力）',
+    cardio: (g === 'F' ? '800 公尺跑走' : g === 'M' ? '1600 公尺跑走' : '跑走（女 800 公尺／男 1600 公尺）') + '（心肺耐力）' }[it];
+}
+function fitShow(r) {
+  if (!r) return '—';
+  if (r.item === 'body') return r.value + ' cm／' + r.value2 + ' kg' + (r.bmi ? '・BMI ' + r.bmi + '（' + LEVEL_TXT[r.level] + '）' : '');
+  var v = r.item === 'cardio' ? (r.display || r.value + ' 秒') : r.value + (r.item === 'sit_up' ? ' 次' : ' 公分');
+  return v + (r.pr ? '・PR ' + r.pr : '') + (r.method === 'diy' ? '（自製方法）' : '');
+}
+function fld2(label, path, ph, type) {
+  return '<label class="f">' + esc(label) + '</label><input type="' + type + '"' + (type === 'number' ? ' inputmode="decimal" step="any"' : '') + ' data-bind="' + path + '" placeholder="' + esc(ph) + '" value="' + esc(getPath(path) || '') + '">';
+}
+async function viewFit() {
+  if (!S.fit || !S.fit.data) {
+    shell('<div class="loading">載入中…</div>');
+    var r = await act('fitGet');
+    if (!r) return;
+    var prev = S.fit || {};
+    S.fit = { data: r, phase: prev.phase || 'pre', gender: prev.gender || r.profile.gender || '', age: prev.age || r.profile.age || '',
+      open: prev.open || '', in: { h: '', w: '', sit_reach: '', standing_jump: '', sit_up: '', cardio: '', diy: false } };
+  }
+  var F = S.fit, d = F.data, T = d.text, ph = F.phase;
+  var h = '<h2>體適能自測</h2>';
+  h += '<div class="card"><p style="margin:0">用 5 個項目了解自己的體能：<b>身體組成、柔軟度、瞬發力、肌耐力、心肺耐力</b>。開始時測一次（<b>前測</b>），第 13–14 週再測一次（<b>後測</b>），看自己的進步。</p>' +
+    '<p class="sub small" style="margin:8px 0 0">成績好壞不影響評分，<b>有完成前測與後測可以加分</b>。測驗過程中不舒服請立刻停止。</p></div>';
+  if (d.healthFlag) h += '<div class="card warn"><b>你的健康問卷有答「是」</b><div class="sub">做心肺耐力（跑走）前，建議先和老師討論適合的方式。</div></div>';
+  else if (!d.planDone) h += '<div class="card warn"><b>還沒完成計畫書的健康問卷</b><div class="sub">建議先到「計畫」頁完成健康問卷，再做自測。</div></div>';
+  h += '<div class="card"><div class="chips"><button class="chip' + (ph === 'pre' ? ' on' : '') + '" data-act="fitPhase" data-p="pre">前測</button><button class="chip' + (ph === 'post' ? ' on' : '') + '" data-act="fitPhase" data-p="post">後測</button></div>' +
+    '<label class="f">性別（用來對照常模）</label><div class="chips"><button class="chip' + (F.gender === 'M' ? ' on' : '') + '" data-act="fitGender" data-g="M">男</button><button class="chip' + (F.gender === 'F' ? ' on' : '') + '" data-act="fitGender" data-g="F">女</button></div>' +
+    '<label class="f">年齡</label><input type="number" inputmode="numeric" min="10" max="100" data-bind="fit.age" value="' + esc(F.age) + '" style="max-width:120px">' +
+    '<p class="sub small" style="margin:8px 0 0">常模涵蓋 19–23 歲（教育部大專校院學生體適能常模）。超出年齡的 PR 只能參考，更適合拿來和自己的前測比較。</p></div>';
+
+  FIT_ITEMS.forEach(function (it) {
+    var recs = d.records.filter(function (r) { return r.item === it && r.phase === ph; });
+    var best = d.summary[it][ph];
+    var open = F.open === it;
+    h += '<details class="card" ' + (open ? 'open' : '') + ' data-fit="' + it + '"><summary style="font-weight:700;font-size:16px;cursor:pointer">' + esc(fitLabel(it)) + (best ? ' <span class="pill g">已測</span>' : '') + '</summary><div style="margin-top:10px">';
+    h += '<div class="sub" style="margin-bottom:6px"><b>怎麼測：</b>' + esc(T.howTo[it]) + '</div>';
+    h += '<details style="margin:8px 0"><summary class="sub" style="cursor:pointer">熱身建議</summary><div class="sub" style="margin-top:6px">' + esc(T.warmup.general) + '<br>' + esc(T.warmup[it]) + '</div></details>';
+    if (it === 'sit_reach') h += '<details style="margin:8px 0"><summary class="sub" style="cursor:pointer">沒有專用測量器怎麼辦？</summary><div class="sub" style="margin-top:6px">可以用捲尺貼在地上，在腳底位置做記號，量指尖超過記號的距離（沒到記號是負數）。這樣測的數字只能「自己和自己比」，不能對照常模，請勾下面的「自製方法」。</div></details>';
+    if (it === 'sit_up') h += '<div class="sub small" style="margin-bottom:6px">沒有同伴時，可以把雙腳勾在沙發或重物下方。</div>';
+    if (it === 'body') h += fld2('身高（公分）', 'fit.in.h', '例如 170', 'number') + fld2('體重（公斤）', 'fit.in.w', '例如 65', 'number');
+    else if (it === 'cardio') h += fld2('時間（分:秒）', 'fit.in.cardio', '例如 8:30', 'text');
+    else h += fld2(it === 'sit_up' ? '次數' : '公分', 'fit.in.' + it, it === 'sit_up' ? '例如 30' : '例如 20', 'number');
+    if (it === 'sit_reach') h += '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:15px"><input type="checkbox" style="width:20px;height:20px" data-bindc="fit.in.diy"' + (F.in.diy ? ' checked' : '') + '>我用自製方法（捲尺）測，不是專用測量器</label>';
+    h += '<button class="btn mt" data-act="fitSave" data-it="' + it + '">記錄這次成績</button>';
+    if (recs.length) {
+      h += '<div class="mt">' + recs.map(function (r) {
+        return '<div class="item"><span>' + md(r.date) + '　' + esc(fitShow(r)) + '</span><button class="x" data-act="fitDel" data-id="' + esc(r.id) + '">刪除</button></div>';
+      }).join('') + '</div>';
+    }
+    if (best) {
+      h += '<div class="card pri" style="margin:12px 0 0"><div class="sub">這次最佳</div><b style="font-size:17px">' + esc(fitShow(best)) + '</b>';
+      if (it === 'body') h += '<div class="mt">' + esc(T.assess.bmi[best.level] || '') + '</div>';
+      else if (best.grade) {
+        h += ' <span class="pill b">' + GRADE_TXT[best.grade] + '</span>';
+        if (best.outOfNormAge) h += '<div class="sub small">你的年齡超出常模範圍（19–23 歲），PR 僅供參考。</div>';
+        h += '<div class="mt">' + esc(T.assess[it][best.grade]) + '</div>';
+      }
+      var rxk = it === 'body' ? 'bmi' : it;
+      var rx = T.rx[rxk];
+      if (rx) h += '<details style="margin-top:10px"><summary class="sub" style="cursor:pointer">怎麼進步（運動處方與生活小撇步）</summary><div style="margin-top:6px"><div class="kv"><b>頻率</b><span>' + esc(rx.freq) + '</span><b>強度</b><span>' + esc(rx.intens) + '</span><b>時間</b><span>' + esc(rx.time) + '</span><b>方式</b><span>' + esc(rx.type) + '</span></div><ul style="margin:8px 0 0;padding-left:20px">' + (T.daily[rxk] || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div></details>';
+      h += '</div>';
+    }
+    h += '</div></details>';
+  });
+
+  var any = FIT_ITEMS.some(function (it) { return d.summary[it].pre || d.summary[it].post; });
+  if (any) {
+    h += '<div class="card"><h3>前測／後測對照</h3>' + FIT_ITEMS.map(function (it) {
+      var a = d.summary[it].pre, b = d.summary[it].post;
+      var diff = '';
+      if (a && b && a.value != null && b.value != null && it !== 'body') {
+        var dv = b.value - a.value, better = it === 'cardio' ? dv < 0 : dv > 0;
+        diff = dv === 0 ? ' 持平' : ' <span class="pill ' + (better ? 'g' : 'y') + '">' + (better ? '進步' : '退步') + ' ' + (it === 'cardio' ? Math.abs(Math.round(dv)) + ' 秒' : Math.abs(Math.round(dv * 10) / 10) + (it === 'sit_up' ? ' 次' : ' 公分')) + '</span>';
+      }
+      return '<div class="item" style="display:block"><b>' + esc(fitLabel(it).replace(/（.*$/, '')) + '</b>' + diff + '<div class="sub small">前測：' + esc(fitShow(a)) + '<br>後測：' + esc(fitShow(b)) + '</div></div>';
+    }).join('') + '</div>';
+  }
+  shell(h);
+}
+
+/* ---------- 我 ---------- */
+function viewMe() {
+  var m = S.home.me;
+  shell('<h2>我的帳號</h2><div class="card"><div class="kv"><b>姓名</b><span>' + esc(m.name) + '</span><b>email</b><span>' + esc(m.email) + '</span><b>課程</b><span>' + esc(S.home.course ? S.home.course.name + '（' + S.home.course.code + '）' : '自用模式') + '</span><b>學號</b><span>' + esc(m.studentNo || '—') + '</span></div>' +
+    '<button class="btn sec mt" data-act="editProfile">修改姓名／加入課程</button></div>' +
+    '<div class="card"><h3>週日提醒信</h3><p class="sub" style="margin:0 0 10px">每週日晚上寄一封：這週運動回顧、下週安排。目前：<b>' + (m.remind ? '已開啟' : '已關閉') + '</b></p><button class="btn ' + (m.remind ? 'gray' : '') + ' sm" data-act="toggleRemind">' + (m.remind ? '關閉週日提醒' : '開啟週日提醒') + '</button></div>' +
+    '<div class="card"><h3>加到手機主畫面</h3><p class="sub" style="margin:0">iPhone：Safari 點分享 → 加入主畫面。Android：Chrome 選單 → 加到主畫面。</p><p class="sub small" style="margin:8px 0 0">加到主畫面後會有自己的圖示，點開就像 App，也不用每次重新登入。</p></div>' +
+    '<button class="btn gray" data-act="logout">登出這支手機</button><p class="sub small center mt">這個系統沒有使用 AI，資料只存在老師的雲端試算表。</p>');
+}
+
+/* ---------- 老師 ---------- */
+async function viewTeacher() {
+  var T = S.T;
+  if (T.sub === 'list') {
+    shell('<div class="loading">載入中…</div>');
+    var r = await act('tList', { code: T.code });
+    if (!r) return;
+    T.code = r.course ? r.course.code : ''; T.course = r.course; T.students = r.students;
+    var cs = await act('tCourses'); T.courses = cs ? cs.courses : [];
+    var rm = await act('tReminder', { op: 'status' }); T.rm = rm || T.rm;
+    drawTList();
+  } else if (T.sub === 'detail') {
+    shell('<div class="loading">載入中…</div>');
+    var d = await act('tStudent', { userId: T.uid });
+    if (!d) { T.sub = 'list'; return viewTeacher(); }
+    T.d = d; T.note = ''; T.fb = ''; drawTDetail();
+  } else if (T.sub === 'course') {
+    drawTCourse();
+  }
+}
+var LIGHT_TXT = { green: '正常', yellow: '留意', red: '需關心' };
+var PLAN_TXT = { none: '未寫', draft: '草稿', submitted: '待確認', approved: '已核准', revise: '待修改' };
+function drawTList() {
+  var T = S.T, st = T.students || [];
+  var cnt = { red: 0, yellow: 0, green: 0 }; st.forEach(function (s) { cnt[s.light]++; });
+  var h = '<h2>學生總表</h2>';
+  if (!T.courses || !T.courses.length) h += '<div class="card"><p>你還沒有課程。</p><button class="btn" data-act="tNewCourse">建立課程</button></div>';
+  else {
+    h += '<div class="card"><select id="tcs" data-chg="tPick">' + T.courses.map(function (c) { return '<option value="' + esc(c.code) + '"' + (c.code === T.code ? ' selected' : '') + '>' + esc(c.name) + '（' + esc(c.code) + '）</option>'; }).join('') + '</select>' +
+      '<div class="mt"><span class="pill r">需關心 ' + cnt.red + '</span> <span class="pill y">留意 ' + cnt.yellow + '</span> <span class="pill g">正常 ' + cnt.green + '</span></div>' +
+      '<div class="row mt"><button class="btn sec sm" data-act="tCourseEdit">課程設定</button><button class="btn sec sm" data-act="tNewCourse">新增課程</button></div>' +
+      '<div class="sub small mt">學生加入方式：註冊時輸入課程代碼 <b>' + esc(T.code) + '</b>，或掃含 <code>?course=' + esc(T.code) + '</code> 的連結。</div></div>';
+    var rm = T.rm || {};
+    h += '<div class="card"><h3>週日提醒信</h3><div class="sub" style="margin-bottom:8px">每週日晚上 7 點多，自動寄給學生「這週回顧＋下週安排」。學生可自行關閉。</div>' +
+      '<div>狀態：' + (rm.on ? '<span class="pill g">已開啟</span>' : '<span class="pill y">未開啟</span>') + (rm.last ? ' <span class="sub small">上次：' + esc(rm.last) + '</span>' : '') + '</div>' +
+      '<div class="row mt">' + (rm.on ? '<button class="btn gray sm" data-act="tRemind" data-op="off">關閉</button>' : '<button class="btn sm" data-act="tRemind" data-op="on">開啟</button>') +
+      '<button class="btn sec sm" data-act="tRemind" data-op="test">寄一封測試給我</button></div></div>';
+    h += st.length ? st.map(function (s) {
+      return '<div class="card" data-act="tOpen" data-u="' + esc(s.userId) + '" style="cursor:pointer"><div style="display:flex;justify-content:space-between;align-items:center"><div><span class="dot ' + s.light + '"></span><b>' + esc(s.name) + '</b> <span class="sub">' + esc(s.studentNo) + '</span></div><span class="sub small">' + LIGHT_TXT[s.light] + '</span></div>' +
+        '<div class="sub small mt">本週 ' + s.thisMin + ' / ' + s.target + ' 分　・　達標 ' + s.rate.met + '/' + s.rate.done + ' 週　・　計畫：' + PLAN_TXT[s.planStatus] + (s.lastDate ? '　・　最近 ' + md(s.lastDate) : '') + '</div>' +
+        (s.why.length ? '<div class="mt">' + s.why.map(function (w) { return '<span class="tag">' + esc(w) + '</span>'; }).join('') + '</div>' : '') + '</div>';
+    }).join('') : '<div class="card sub">還沒有學生加入。</div>';
+  }
+  shell(h);
+}
+function drawTDetail() {
+  var d = S.T.d, s = d.student, p = d.plan, T = S.T; T.sd = s.startDate;
+  var h = '<button class="btn gray sm" data-act="tBack">← 回總表</button><h2 style="margin-top:12px"><span class="dot ' + s.light + '"></span>' + esc(s.name) + ' <span class="sub">' + esc(s.studentNo) + '</span></h2>' +
+    '<div class="sub">' + esc(s.email) + '　起算日 ' + md(s.startDate) + '</div>' +
+    (s.why.length ? '<div class="mt">' + s.why.map(function (w) { return '<span class="tag">' + esc(w) + '</span>'; }).join('') + '</div>' : '');
+  h += '<div class="card"><h3>計畫書：' + PLAN_TXT[p.status] + '</h3>';
+  if (p.status === 'none') h += '<div class="sub">尚未填寫。</div>';
+  else {
+    var yes = []; (p.health.answers || []).forEach(function (a, i) { if (a === 1) yes.push(i + 1); });
+    h += '<div class="kv"><b>健康</b><span>' + (yes.length ? '<span class="pill r">第 ' + yes.join('、') + ' 題答「是」</span>' : '7 題皆「否」') + '</span><b>傷病</b><span>' + esc(p.health.conditions || '—') + '</span>' +
+      '<b>基準</b><span>' + esc([p.baseline.body, p.baseline.cardio, p.baseline.strength, p.baseline.flex].filter(Boolean).join('；') || '—') + '</span>' +
+      '<b>目標</b><span>' + nl(p.goal) + '</span><b>場地</b><span>' + esc(p.venue || '—') + '（備案：' + esc(p.backup || '—') + '）</span><b>阻礙</b><span>' + nl(p.obstacles || '—') + '</span>' +
+      '<b>每週安排</b><span>' + (p.schedule.map(function (it) { return DAYS[it.day] + SLOTS[it.slot] + ' ' + esc(it.type) + ' ' + it.minutes + '分'; }).join('<br>') || '—') + '</span></div>';
+    h += '<label class="f">給學生的修改說明（要求修改時必填）</label><textarea data-bind="T.note" maxlength="400" placeholder="例如：目標請寫得更具體"></textarea>' +
+      '<div class="row mt"><button class="btn" data-act="tApprove">核准</button><button class="btn sec" data-act="tRevise">請他修改</button></div>';
+  }
+  h += '</div>';
+  h += '<div class="card"><h3>給一句回饋</h3><textarea data-bind="T.fb" maxlength="400" placeholder="學生首頁會看到"></textarea><button class="btn mt" data-act="tFeedback">送出回饋</button>' +
+    (d.feedback.length ? '<div class="sub small mt">' + d.feedback.map(function (f) { return md(f.at) + '　' + esc(f.text); }).join('<br>') + '</div>' : '') + '</div>';
+  h += '<div class="card"><h3>每週一覽</h3>' + s.table.map(function (w) {
+    var pc = Math.min(100, Math.round(w.min / s.target * 100));
+    return '<div class="wk"><div>' + esc(w.label.replace('（期末考週）', '')) + '<div class="sub small">' + md(w.start) + '</div></div><div><div class="bar' + (w.met ? ' ok' : '') + '"><i style="width:' + pc + '%"></i></div><div class="sub small">' + w.min + ' 分・肌力 ' + w.strength + '・強度 ' + (w.avgRpe == null ? '—' : w.avgRpe) + '</div></div><div class="center">' + (w.future ? '—' : (w.met ? '✔' : (w.current ? '…' : '✘'))) + (w.reflected ? ' 📝' : '') + '</div></div>';
+  }).join('') + '</div>';
+  h += '<div class="card"><h3>週反思</h3>' + (d.reflects.length ? d.reflects.map(function (r) {
+    return '<div style="margin-bottom:12px"><b>第 ' + r.week + ' 週</b>' + (d.stages[r.week] ? ' <span class="pill b">' + esc(d.stages[r.week]) + '</span>' : '') + '<div class="sub">做到：</div>' + nl(r.did) + '<div class="sub mt">阻礙：</div>' + nl(r.obstacle || '—') + '<div class="sub mt">調整：</div>' + nl(r.adjust || '—') +
+      (r.goalScore ? '<div class="sub mt">目標達成度：' + r.goalScore + ' / 5</div>' : '') + (r.extra ? '<div class="sub mt">補充：</div>' + nl(r.extra) : '') + '</div>';
+  }).join('') : '<div class="sub">還沒有反思。</div>') + '</div>';
+  h += '<div class="card"><h3>最近運動</h3>' + (d.logs.length ? d.logs.map(function (l) {
+    return '<div class="item"><div><b>' + md(l.date) + '</b> ' + esc(l.types.join('、')) + '<div class="sub small">' + esc(l.activity || '') + '　' + l.minutes + ' 分　強度 ' + l.rpe + (l.note ? '　' + esc(l.note) : '') + '</div></div></div>';
+  }).join('') : '<div class="sub">還沒有記錄。</div>') + '</div>';
+  if (d.fit) {
+    var FL = { body: '身高體重', sit_reach: '坐姿體前彎', standing_jump: '立定跳遠', sit_up: '仰臥起坐', cardio: '心肺跑走' };
+    var fv = function (r) { if (!r) return '—'; if (r.item === 'body') return r.value + '/' + r.value2 + (r.bmi ? ' BMI ' + r.bmi : ''); return (r.item === 'cardio' ? (r.display || r.value) : r.value) + (r.pr ? ' (PR ' + r.pr + ')' : ''); };
+    h += '<div class="card"><h3>體適能自測</h3>' + Object.keys(FL).map(function (k) { return '<div class="item" style="display:block"><b>' + FL[k] + '</b><div class="sub small">前測：' + esc(fv(d.fit[k].pre)) + '　後測：' + esc(fv(d.fit[k].post)) + '</div></div>'; }).join('') + '</div>';
+  }
+  h += '<div class="card"><h3>調整起算日</h3><div class="sub small" style="margin-bottom:8px">只能填週一。目前起算日 ' + esc(s.startDate) + '</div><input type="date" data-bind="T.sd" value="' + esc(s.startDate) + '"><button class="btn sec mt" data-act="tStart">更新起算日</button></div>';
+  shell(h);
+}
+function drawTCourse() {
+  var T = S.T, c = T.editing || { code: '', name: '', startDate: '', weeks: 15, weeklyTarget: 120, weeklyMin: 90, strengthTarget: 2, passRate: 0.8 };
+  T.cf = { code: c.code, name: c.name, startDate: c.startDate, weeks: c.weeks, weeklyTarget: c.weeklyTarget, weeklyMin: c.weeklyMin, strengthTarget: c.strengthTarget, passRate: Math.round(c.passRate * 100), guide: c.guide || '' };
+  var isNew = !c.code;
+  var h = '<button class="btn gray sm" data-act="tBack">← 回總表</button><h2 style="margin-top:12px">' + (isNew ? '新增課程' : '課程設定') + '</h2><div class="card">' +
+    '<label class="f" style="margin-top:0">課程代碼（學生註冊時輸入）</label><input type="text" maxlength="30" data-bind="T.cf.code" value="' + esc(c.code) + '"' + (isNew ? '' : ' readonly') + '>' +
+    '<label class="f">課程名稱</label><input type="text" maxlength="60" data-bind="T.cf.name" value="' + esc(c.name) + '">' +
+    '<label class="f">第 1 週的週一日期（例 2026-09-14）</label><input type="date" data-bind="T.cf.startDate" value="' + esc(c.startDate) + '">' +
+    '<div class="row"><div><label class="f">運動週數</label><input type="number" data-bind="T.cf.weeks" value="' + esc(T.cf.weeks) + '"></div><div><label class="f">達標率門檻 %</label><input type="number" data-bind="T.cf.passRate" value="' + esc(T.cf.passRate) + '"></div></div>' +
+    '<div class="row"><div><label class="f">每週目標分鐘</label><input type="number" data-bind="T.cf.weeklyTarget" value="' + esc(T.cf.weeklyTarget) + '"></div><div><label class="f">達標線分鐘</label><input type="number" data-bind="T.cf.weeklyMin" value="' + esc(T.cf.weeklyMin) + '"></div></div>' +
+    '<label class="f">每週肌力次數目標</label><input type="number" data-bind="T.cf.strengthTarget" value="' + esc(T.cf.strengthTarget) + '">' +
+    '<label class="f">給學生看的評分與規則說明（顯示在學生的「使用說明」）</label><textarea data-bind="T.cf.guide" maxlength="1500" style="min-height:140px">' + esc(c.guide || '') + '</textarea>' +
+    '<button class="btn mt" data-act="tSaveCourse">儲存</button></div>';
+  shell(h);
+}
+
+/* ---------- 動作 ---------- */
+var H = {
+  reload: function () { location.reload(); },
+  go: function (d) { S.view = d.v; if (d.v === 'log') S.logForm = S.logForm || newLogForm(); if (d.v === 'teacher') S.T.sub = 'list'; render(); },
+  me: function () { S.view = 'me'; render(); },
+  guide: function () { S.view = 'guide'; render(); },
+  sendCode: async function () {
+    var em = $('em').value.trim(); S.email = em;
+    var r = await act('sendCode', { email: em });
+    if (r) { S.loginStep = 'code'; renderLogin(); toast('驗證碼已寄出'); }
+  },
+  backEmail: function () { S.loginStep = 'email'; renderLogin(); },
+  verify: async function () {
+    var r = await act('verifyCode', { email: S.email, code: $('cd').value });
+    if (!r) return;
+    S.token = r.token; setTok(r.token);
+    var h = await act('home');
+    if (!h) return;
+    S.home = h;
+    if (!h.me.name) renderRegister(); else { S.view = 'today'; render(); }
+  },
+  saveProfile: async function () {
+    var r = await act('profile', { name: $('rn').value, courseCode: $('rc').value, studentNo: $('rs').value });
+    if (!r) return;
+    S.plan = null; var h = await act('home'); if (h) { S.home = h; S.view = 'guide'; render(); toast('已完成，先看一下怎麼使用'); }
+  },
+  editProfile: function () { renderRegister(); },
+  goFit: function () { S.fit = null; S.view = 'fit'; render(); },
+  fitPhase: function (d) { S.fit.phase = d.p; viewFit(); },
+  fitGender: function (d) { S.fit.gender = d.g; viewFit(); },
+  fitSave: async function (d) {
+    var F = S.fit, it = d.it, body = { phase: F.phase, item: it, gender: F.gender, age: F.age, method: (it === 'sit_reach' && F.in.diy) ? 'diy' : 'standard' };
+    if (it === 'body') { body.value = F.in.h; body.value2 = F.in.w; } else body.value = F.in[it];
+    var r = await act('fitSave', body, '已記錄');
+    if (!r) return;
+    S.fit = { phase: F.phase, gender: F.gender, age: F.age, open: it };
+    viewFit();
+    var hh = await act('home'); if (hh) S.home = hh;
+  },
+  fitDel: async function (d) {
+    if (!confirm('確定刪除這筆成績嗎？')) return;
+    var r = await act('fitDelete', { id: d.id }, '已刪除');
+    if (r) { var F = S.fit; S.fit = { phase: F.phase, gender: F.gender, age: F.age, open: F.open }; viewFit(); var hh = await act('home'); if (hh) S.home = hh; }
+  },
+  toggleRemind: async function () {
+    var on = !S.home.me.remind;
+    var r = await act('remind', { on: on }, on ? '已開啟週日提醒' : '已關閉週日提醒');
+    if (r) { S.home.me.remind = on; viewMe(); }
+  },
+  tRemind: async function (d) {
+    var r = await act('tReminder', { op: d.op });
+    if (!r) return;
+    if (d.op === 'test') toast(r.mailed ? '測試信已寄到你的信箱' : '寄送失敗');
+    else toast(d.op === 'on' ? '已開啟：每週日晚上 7 點多自動寄出' : '已關閉');
+    S.T.rm = r.on === undefined ? S.T.rm : r; viewTeacher();
+  },
+  logout: async function () { await act('logout'); setTok(''); S.token = ''; S.home = null; S.loginStep = 'email'; S.plan = null; S.logForm = null; S.rf = null; renderLogin(); },
+
+  toggleType: function (d) { var a = S.logForm.types, i = a.indexOf(d.t); if (i > -1) a.splice(i, 1); else a.push(d.t); viewLog(); },
+  setMin: function (d) { S.logForm.minutes = d.m; viewLog(); },
+  setRpe: function (d) { S.logForm.rpe = +d.n; viewLog(); },
+  setMood: function (d) { S.logForm.mood = +d.n; viewLog(); },
+  saveLog: async function () {
+    var f = S.logForm;
+    var r = await act('log', { date: f.date, types: f.types, activity: f.activity, minutes: f.minutes, rpe: f.rpe, mood: f.mood, note: f.note }, '已記錄，辛苦了 👍');
+    if (!r) return;
+    S.logForm = newLogForm(); S.recent = null;
+    var h = await act('home'); if (h) S.home = h;
+    S.view = 'today'; render();
+  },
+  delLog: async function (d) {
+    if (!confirm('確定刪除這筆記錄嗎？')) return;
+    var r = await act('logDelete', { id: d.id }, '已刪除');
+    if (r) { S.recent = null; var h = await act('home'); if (h) S.home = h; viewLog(); }
+  },
+
+  hq: function (d) { S.plan.health.answers[+d.i] = +d.v; viewPlan(); },
+  goalIdea: function (d) { var g = GOAL_IDEAS[+d.i]; S.plan.goal = S.plan.goal ? S.plan.goal + '；' + g : g; viewPlan(); },
+  addItem: function () {
+    var n = S.newItem, m = parseInt(n.minutes, 10);
+    if (!m || m < 5) return toast('請填分鐘數（至少 5）');
+    S.plan.schedule = (S.plan.schedule || []).concat([{ day: +n.day, slot: n.slot, type: n.type, minutes: m }]);
+    S.plan.schedule.sort(function (a, b) { return a.day - b.day || ['am', 'noon', 'eve'].indexOf(a.slot) - ['am', 'noon', 'eve'].indexOf(b.slot); });
+    viewPlan();
+  },
+  delItem: function (d) { S.plan.schedule.splice(+d.i, 1); viewPlan(); },
+  planStep: async function (d) {
+    var next = S.planStep + (+d.d);
+    if (next < 0 || next > 4) return;
+    var r = await act('planSave', { plan: S.plan, submit: false });
+    if (!r) return;
+    S.planStep = next; S._lv = null; viewPlan();
+  },
+  planDraft: async function () { var r = await act('planSave', { plan: S.plan, submit: false }, '草稿已儲存'); if (r) { var g = await act('planGet'); if (g) S.plan = Object.assign(S.plan, { status: g.plan.status }); } },
+  planSubmit: async function () {
+    var r = await act('planSave', { plan: S.plan, submit: true });
+    if (!r) return;
+    toast(S.home.state.mode === 'course' ? '已送出給老師' : '已儲存');
+    S.plan = null; S.planStep = 0;
+    var h = await act('home'); if (h) S.home = h;
+    S.view = 'today'; render();
+  },
+
+  rfWeek: async function (d, el) { await loadReflect(+el.value); drawReflect(S.prog.weeks.filter(function (w) { return w.week <= S.home.state.wk; })); },
+  obstIdea: function (d) { var o = OBST_IDEAS[+d.i]; S.rf.obstacle = S.rf.obstacle ? S.rf.obstacle + '、' + o : o; drawReflect(S.prog.weeks.filter(function (w) { return w.week <= S.home.state.wk; })); },
+  rfScore: function (d) { S.rf.goalScore = +d.n; drawReflect(S.prog.weeks.filter(function (w) { return w.week <= S.home.state.wk; })); },
+  saveReflect: async function () {
+    var rf = S.rf;
+    var r = await act('reflectSave', { week: rf.week, did: rf.did, obstacle: rf.obstacle, adjust: rf.adjust, goalScore: rf.goalScore, extra: rf.extra }, '已送出，辛苦了');
+    if (!r) return;
+    var h = await act('home'); if (h) S.home = h;
+    S.rf = null; S.view = 'today'; render();
+  },
+
+  tPick: function (d, el) { S.T.code = el.value; viewTeacher(); },
+  tOpen: function (d) { S.T.uid = d.u; S.T.sub = 'detail'; S._lv = null; viewTeacher(); },
+  tBack: function () { S.T.sub = 'list'; S._lv = null; viewTeacher(); },
+  tApprove: async function () { var r = await act('tPlan', { userId: S.T.uid, decision: 'approve', note: S.T.note }); if (r) { toast(r.mailed ? '已核准，並已 email 通知學生' : '已核准（通知信寄送失敗，請另外告知學生）'); viewTeacher(); } },
+  tRevise: async function () { var r = await act('tPlan', { userId: S.T.uid, decision: 'revise', note: S.T.note }); if (r) { toast(r.mailed ? '已請學生修改，並已 email 通知' : '已請學生修改（通知信寄送失敗，請另外告知學生）'); viewTeacher(); } },
+  tFeedback: async function () { var r = await act('tFeedback', { userId: S.T.uid, text: S.T.fb }, '回饋已送出'); if (r) viewTeacher(); },
+  tStart: async function () { var r = await act('tUser', { userId: S.T.uid, startDate: S.T.sd }, '已更新'); if (r) viewTeacher(); },
+  tCourseEdit: function () { S.T.editing = S.T.course; S.T.sub = 'course'; S._lv = null; viewTeacher(); },
+  tNewCourse: function () { S.T.editing = null; S.T.sub = 'course'; S._lv = null; viewTeacher(); },
+  tSaveCourse: async function () {
+    var c = S.T.cf;
+    var r = await act('tCourseSave', { code: c.code, name: c.name, startDate: c.startDate, weeks: c.weeks, weeklyTarget: c.weeklyTarget, weeklyMin: c.weeklyMin, strengthTarget: c.strengthTarget, passRate: (+c.passRate) / 100, guide: c.guide }, '已儲存');
+    if (r) { S.T.code = c.code; S.T.sub = 'list'; viewTeacher(); }
+  }
+};
+
+boot();
+</script>
+</body>
+</html>
