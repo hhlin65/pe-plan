@@ -17,6 +17,7 @@
 <style>
 :root{--pri:#2563eb;--pri-d:#1d4ed8;--pri-l:#e8efff;--ok:#16a34a;--ok-l:#e7f6ec;--warn:#d97706;--warn-l:#fff4e0;--bad:#dc2626;--bad-l:#fdecec;--ink:#1c2433;--sub:#667085;--line:#e4e8f0;--bg:#f4f6fb;--card:#fff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button,a,summary,[data-act],select,input{touch-action:manipulation}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
 #app{max-width:560px;margin:0 auto;padding:0 16px 96px}
 h1{font-size:22px;margin:0}h2{font-size:18px;margin:0 0 8px}h3{font-size:16px;margin:0 0 6px}
@@ -33,6 +34,29 @@ h1{font-size:22px;margin:0}h2{font-size:18px;margin:0 0 8px}h3{font-size:16px;ma
 .btn.bad{background:var(--bad)}
 .btn.sm{min-height:40px;font-size:15px;padding:8px 12px;display:inline-block;width:auto}
 .btn[disabled]{opacity:.5}
+.btn,.chip,.iconbtn,.nav button,.x,[data-act]{transition:transform .09s ease,filter .09s ease,background .12s ease,opacity .12s ease}
+.btn:active,.btn.hit{transform:scale(.96);background:var(--pri-d);filter:brightness(.92)}
+.btn.sec:active,.btn.sec.hit{background:var(--pri-l);color:var(--pri-d)}
+.btn.gray:active,.btn.gray.hit{background:#dde3ee}
+.btn.bad:active,.btn.bad.hit{background:#b91c1c}
+.chip:active,.chip.hit{transform:scale(.92);background:var(--pri-l);border-color:var(--pri);color:var(--pri-d)}
+.chip.on:active,.chip.on.hit{background:var(--pri-d);border-color:var(--pri-d);color:#fff}
+.iconbtn:active,.iconbtn.hit{transform:scale(.93);background:var(--pri-l);border-color:var(--pri)}
+.nav button:active,.nav button.hit{transform:scale(.88);color:var(--pri);background:var(--pri-l);border-radius:12px}
+.x:active{opacity:.5}
+.card[data-act]:active,.card[data-act].hit{transform:scale(.985);background:var(--pri-l)}
+.btn.busy{position:relative;color:transparent!important;pointer-events:none}
+.btn.busy::after{content:"";position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;border:3px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.btn.sec.busy::after,.btn.gray.busy::after{border-color:rgba(37,99,235,.25);border-top-color:var(--pri)}
+@keyframes spin{to{transform:rotate(360deg)}}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--pri);opacity:0;z-index:30;pointer-events:none}
+#bar.on{opacity:1;width:80%;transition:width 6s cubic-bezier(.1,.7,.2,1)}
+#bar.done{width:100%;opacity:0;transition:width .15s ease,opacity .35s ease .15s}
+.skel{position:relative;overflow:hidden}
+.skel i{display:block;height:14px;border-radius:7px;background:#e8ecf3;margin:10px 0}
+.skel i:first-child{width:45%;height:18px}.skel i:nth-child(3){width:70%}
+.skel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transform:translateX(-100%);animation:shim 1.1s infinite}
+@keyframes shim{to{transform:translateX(100%)}}
 .row{display:flex;gap:10px}.row>*{flex:1}
 label.f{display:block;font-weight:600;margin:14px 0 6px}
 input[type=text],input[type=email],input[type=number],input[type=date],textarea,select{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
@@ -83,6 +107,7 @@ a{color:var(--pri)}
 </head>
 <body>
 <div id="app"><div class="loading">載入中…</div></div>
+<div id="bar"></div>
 <div id="toast"></div>
 <script>
 var PARAM_C = (new URLSearchParams(location.search).get('course') || '').replace(/[^A-Za-z0-9_\-]/g, '').slice(0, 30);
@@ -137,9 +162,13 @@ function call(a, p) {
   return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ a: a, t: S.token, p: p || {} }) })
     .then(function (r) { return r.json(); });
 }
+var barT = 0;
+function barOn() { var b = $('bar'); clearTimeout(barT); b.className = ''; void b.offsetWidth; b.className = 'on'; }
+function barOff() { var b = $('bar'); b.className = 'done'; barT = setTimeout(function () { b.className = ''; }, 600); }
+function skeleton(n) { var o = ''; for (var i = 0; i < (n || 3); i++) o += '<div class="card skel"><i></i><i></i><i></i></div>'; return o; }
+var inflight = 0;
 async function act(a, p, okMsg) {
-  if (S.busy) return null;
-  S.busy = true;
+  inflight++; barOn();
   try {
     var r;
     try { r = await call(a, p); }
@@ -151,7 +180,7 @@ async function act(a, p, okMsg) {
     if (okMsg) toast(okMsg);
     return r;
   } catch (e) { toast('連線失敗，請檢查網路後再試。'); return null; }
-  finally { S.busy = false; }
+  finally { inflight--; if (inflight <= 0) { inflight = 0; barOff(); } }
 }
 
 function setPath(path, val) {
@@ -178,12 +207,35 @@ document.addEventListener('toggle', function (e) {
   var el = e.target;
   if (el && el.dataset && el.dataset.fit && S.fit && el.open) S.fit.open = el.dataset.fit;
 }, true);
+document.addEventListener('pointerdown', function (e) {
+  var el = e.target.closest('.btn,.chip,.iconbtn,.nav button,.x,.card[data-act]');
+  if (!el || el.classList.contains('busy')) return;
+  el.classList.add('hit');
+  setTimeout(function () { el.classList.remove('hit'); }, 160);
+  try { if (navigator.vibrate) navigator.vibrate(8); } catch (err) {}
+}, { passive: true });
 document.addEventListener('click', function (e) {
   var el = e.target.closest('[data-act]');
   if (!el) return;
   var fn = H[el.dataset.act];
-  if (fn) fn(el.dataset, el);
+  if (!fn) return;
+  var r = fn(el.dataset, el);
+  if (r && typeof r.then === 'function' && el.classList.contains('btn')) {
+    el.classList.add('busy');
+    r.then(function () { el.classList.remove('busy'); }, function () { el.classList.remove('busy'); });
+  }
 });
+
+/* ---------- 背景更新首頁（不擋畫面） ---------- */
+function mondayStr(s) {
+  var p = s.split('-'), d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])), wd = (d.getUTCDay() + 6) % 7;
+  d = new Date(d.getTime() - wd * 86400000);
+  return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+}
+async function refreshHome() {
+  var r = await act('home');
+  if (r) { S.home = r; if (S.view === 'today') render(); }
+}
 
 /* ---------- 切回畫面時喚醒連線 ---------- */
 var lastPing = 0;
@@ -345,7 +397,7 @@ async function viewLog() {
 var PLAN_STEPS = ['健康', '基準', '目標', '排程', '送出'];
 async function viewPlan() {
   if (!S.plan) {
-    shell('<div class="loading">載入中…</div>');
+    shell(skeleton(3));
     var r = await act('planGet');
     if (!r) return;
     S.plan = r.plan;
@@ -411,7 +463,7 @@ function fld(label, path, ph) {
 
 /* ---------- 反思 ---------- */
 async function viewReflect() {
-  shell('<div class="loading">載入中…</div>');
+  shell(skeleton(3));
   var pr = await act('progress');
   if (!pr) return;
   S.prog = pr;
@@ -449,10 +501,13 @@ function drawReflect(weeks) {
 
 /* ---------- 進度 ---------- */
 async function viewProg() {
-  shell('<div class="loading">載入中…</div>');
+  if (S.prog) drawProg(S.prog); else shell(skeleton(3));
   var r = await act('progress');
   if (!r) return;
   S.prog = r;
+  if (S.view === 'prog') drawProg(r);
+}
+function drawProg(r) {
   var tg = r.targets, rt = r.rate;
   var h = '<h2>我的進度</h2>';
   if (r.mode === 'course') {
@@ -546,8 +601,8 @@ function fld2(label, path, ph, type) {
   return '<label class="f">' + esc(label) + '</label><input type="' + type + '"' + (type === 'number' ? ' inputmode="decimal" step="any"' : '') + ' data-bind="' + path + '" placeholder="' + esc(ph) + '" value="' + esc(getPath(path) || '') + '">';
 }
 async function viewFit() {
-  if (!S.fit || !S.fit.data) {
-    shell('<div class="loading">載入中…</div>');
+  if (!S.fit || !S.fit.data || S.fit.data.__stale) {
+    if (!S.fit || !S.fit.data) shell(skeleton(3));
     var r = await act('fitGet');
     if (!r) return;
     var prev = S.fit || {};
@@ -629,7 +684,7 @@ function viewMe() {
 async function viewTeacher() {
   var T = S.T;
   if (T.sub === 'list') {
-    shell('<div class="loading">載入中…</div>');
+    shell(skeleton(3));
     var r = await act('tList', { code: T.code });
     if (!r) return;
     T.code = r.course ? r.course.code : ''; T.course = r.course; T.students = r.students;
@@ -637,7 +692,7 @@ async function viewTeacher() {
     var rm = await act('tReminder', { op: 'status' }); T.rm = rm || T.rm;
     drawTList();
   } else if (T.sub === 'detail') {
-    shell('<div class="loading">載入中…</div>');
+    shell(skeleton(3));
     var d = await act('tStudent', { userId: T.uid });
     if (!d) { T.sub = 'list'; return viewTeacher(); }
     T.d = d; T.note = ''; T.fb = ''; drawTDetail();
@@ -751,7 +806,7 @@ var H = {
     S.plan = null; var h = await act('home'); if (h) { S.home = h; S.view = 'guide'; render(); toast('已完成，先看一下怎麼使用'); }
   },
   editProfile: function () { renderRegister(); },
-  goFit: function () { S.fit = null; S.view = 'fit'; render(); },
+  goFit: function () { if (S.fit && S.fit.data) { S.fit.data.__stale = true; } S.view = 'fit'; render(); },
   fitPhase: function (d) { S.fit.phase = d.p; viewFit(); },
   fitGender: function (d) { S.fit.gender = d.g; viewFit(); },
   fitSave: async function (d) {
@@ -790,9 +845,14 @@ var H = {
     var f = S.logForm;
     var r = await act('log', { date: f.date, types: f.types, activity: f.activity, minutes: f.minutes, rpe: f.rpe, mood: f.mood, note: f.note }, '已記錄，辛苦了 👍');
     if (!r) return;
+    var hm = S.home, mins = parseInt(f.minutes, 10) || 0;
+    if (f.date >= mondayStr(hm.state.today)) {
+      hm.thisWeek.min += mins; hm.thisWeek.sessions += 1; if (f.types.indexOf('肌力') > -1) hm.thisWeek.strength += 1;
+    }
+    hm.logCount += 1;
     S.logForm = newLogForm(); S.recent = null;
-    var h = await act('home'); if (h) S.home = h;
     S.view = 'today'; render();
+    refreshHome();
   },
   delLog: async function (d) {
     if (!confirm('確定刪除這筆記錄嗎？')) return;
@@ -822,9 +882,10 @@ var H = {
     var r = await act('planSave', { plan: S.plan, submit: true });
     if (!r) return;
     toast(S.home.state.mode === 'course' ? '已送出給老師' : '已儲存');
+    S.home.plan.status = S.home.state.mode === 'course' ? 'submitted' : 'approved';
     S.plan = null; S.planStep = 0;
-    var h = await act('home'); if (h) S.home = h;
     S.view = 'today'; render();
+    refreshHome();
   },
 
   rfWeek: async function (d, el) { await loadReflect(+el.value); drawReflect(S.prog.weeks.filter(function (w) { return w.week <= S.home.state.wk; })); },
@@ -834,8 +895,9 @@ var H = {
     var rf = S.rf;
     var r = await act('reflectSave', { week: rf.week, did: rf.did, obstacle: rf.obstacle, adjust: rf.adjust, goalScore: rf.goalScore, extra: rf.extra }, '已送出，辛苦了');
     if (!r) return;
-    var h = await act('home'); if (h) S.home = h;
+    S.home.reflectDone = true;
     S.rf = null; S.view = 'today'; render();
+    refreshHome();
   },
 
   tPick: function (d, el) { S.T.code = el.value; viewTeacher(); },
