@@ -568,7 +568,7 @@ function viewGuide() {
     '每個項目都有動作說明和熱身建議。測完會看到 PR（和同齡的比較）、評語，以及怎麼進步的小建議。',
     '常模只涵蓋 19–23 歲，超出的年齡 PR 只能參考，<b>重點是和自己的前測比</b>。',
     '沒有專用測量器也沒關係：坐姿體前彎可以用捲尺，勾選「自製方法」，數字只用來和自己比。',
-    isCourse ? '成績好壞不影響每週達標與評分，<b>有完成前測與後測可以加分</b>。' : '成績好壞只是讓你認識自己，沒有人評分。',
+    isCourse ? '成績好壞不影響每週達標與評分，<b>前測與後測都完成（五個項目各測一次）可加 5 分</b>。' : '成績好壞只是讓你認識自己，沒有人評分。',
     '測驗中不舒服請立刻停止；健康問卷有答「是」的人，做跑走前先和老師討論。'
   ]), false);
   h += sec('運動強度怎麼選', '<p style="margin:0 0 6px" class="sub">憑感覺選就好，沒有標準答案。</p>' + ul(RPE_TXT.slice(1).map(function (t, i) { return '<b>' + (i + 1) + '</b>：' + esc(t); })), false);
@@ -612,7 +612,7 @@ async function viewFit() {
   var F = S.fit, d = F.data, T = d.text, ph = F.phase;
   var h = '<h2>體適能自測</h2>';
   h += '<div class="card"><p style="margin:0">用 5 個項目了解自己的體能：<b>身體組成、柔軟度、瞬發力、肌耐力、心肺耐力</b>。開始時測一次（<b>前測</b>），第 13–14 週再測一次（<b>後測</b>），看自己的進步。</p>' +
-    '<p class="sub small" style="margin:8px 0 0">成績好壞不影響評分，<b>有完成前測與後測可以加分</b>。測驗過程中不舒服請立刻停止。</p></div>';
+    '<p class="sub small" style="margin:8px 0 0">成績好壞不影響評分，<b>前測與後測都完成（五個項目各測一次）可加 5 分</b>。測驗過程中不舒服請立刻停止。</p></div>';
   if (d.healthFlag) h += '<div class="card warn"><b>你的健康問卷有答「是」</b><div class="sub">做心肺耐力（跑走）前，建議先和老師討論適合的方式。</div></div>';
   else if (!d.planDone) h += '<div class="card warn"><b>還沒完成計畫書的健康問卷</b><div class="sub">建議先到「計畫」頁完成健康問卷，再做自測。</div></div>';
   h += '<div class="card"><div class="chips"><button class="chip' + (ph === 'pre' ? ' on' : '') + '" data-act="fitPhase" data-p="pre">前測</button><button class="chip' + (ph === 'post' ? ' on' : '') + '" data-act="fitPhase" data-p="post">後測</button></div>' +
